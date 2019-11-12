@@ -1,85 +1,90 @@
+
 /*
+Send canvas over PubNub
+Based on: https://www.pubnub.com/blog/diy-snapchat-clone-capture-send-images-javascript-tutorial/
 
-Blank pubnub sketch
- */
-
-
-// server variables for apps to communicate they must use THE SAME KEYS
-//get these keys from your PubNub account
-//within your group, you will use 1 of your accounts for the project
+Press the spacebar to send 
+*/
 
 let dataServer;
 let pubKey = 'pub-c-f7c6e88a-fd33-4fe4-9b76-a27626e5227d';
 let subKey = 'sub-c-efd3536c-e6a6-11e8-b4a9-e69ca2f1dc0c';
 
+
 //name used to sort your messages. used like a radio station. can be called anything
 let channelName = "imageSend";
 
+
+
+
 function setup() 
 {
-  
-  createCanvas(windowWidth,windowHeight);
-  background(255);
-  ellipse(100,100,100,100);
-  
+createCanvas(300, 300);
+background(220);
 
-   // initialize pubnub
-  dataServer = new PubNub(
+  
+    dataServer = new PubNub(
   {
     publish_key   : pubKey,  //get these from the pubnub account online
     subscribe_key : subKey,  
-    ssl: true,  //enables a secure connection. This option has to be used if using the OCAD webspace
-    uuid: "Nick"
+    ssl: true,  
   });
   
-  //attach callbacks to the pubnub object to handle messages and connections
-  dataServer.addListener({ message: readIncoming});
-  dataServer.subscribe({channels: [channelName]});
 
-      var dataURL = compressImage(canvas, 32);
-
-    if (dataURL == null) {
-        alert("We couldn't compress the image small enough");
-        return;
-    }  
-
-
-
+ 
 }
 
 function draw() 
 {
 
-
-}
-
-
-///uses built in mouseClicked function to send the data to the pubnub server
-function mouseClicked() {
- 
-
-  // Send Data to the server to draw it in all other canvases
-  dataServer.publish(
-    {
-      channel: channelName,
-      message: 
-      {
-        messageText: "testText"       //get the value from the text box and send it as part of the message   
-      }
-    });
-
-}
-
-function readIncoming(inMessage) //when new data comes in it triggers this function, 
-{                               // this works becsuse we subscribed to the channel in setup()
+ellipse(mouseX,mouseY,30);
   
-  // simple error check to match the incoming to the channelName
-  if(inMessage.channel == channelName)
-  {
-
-    console.log(inMessage);
-  }
 }
+
+
+
+function keyPressed()
+{
+
+  if(key === ' ')
+  {
+   sendCanvas();
+  }
+   
+  
+}
+
+
+
+
+function sendCanvas()
+{
+    canvasImage = compressImage(canvas,30);
+    clear();
+    background(220);
+  
+    if (canvasImage == null) {
+        
+        console.log("couldn't compress image");
+        return;
+    }  
+    else
+    {
+         dataServer.publish(
+        {
+          channel: channelName,
+          message: 
+          {
+            image: canvasImage,
+            mx: mouseX,
+            my: mouseY
+          }
+        });
+      
+    }
+  
+}
+
 
 function compressImage(canvas, size) {
     var compression = 1.0;
@@ -94,5 +99,3 @@ function compressImage(canvas, size) {
     }
     return null;
 }
-
-
