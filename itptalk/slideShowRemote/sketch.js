@@ -14,7 +14,7 @@ let subKey = 'sub-c-fc2a3f56-3865-11ea-afe9-722fee0ed680';
 //input variables
 
 let nextButton;
-let slideNumber=1;
+let slideNumber=0;
 let totalImages = 50;
 
 
@@ -58,10 +58,10 @@ function draw()
 function sendTheMessage() 
 {
 
-slideNumber = ((slideNumber+1)<=(totalImages-1)) ? slideNumber+=1 : 0; //shorthand for conditional assignment
+slideNumber = ((slideNumber+1)<=(totalImages)) ? slideNumber+=1 : 1; //shorthand for conditional assignment
 
 
-//console.log(slideNumber);
+console.log(slideNumber);
 
   //publish the number to everyone.
   dataServer.publish(
