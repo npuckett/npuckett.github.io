@@ -19,7 +19,7 @@ let channelName = "powerpoint";
 
 //image variables
 let img = [];
-let totalImages = 50;
+let totalImages = 5;
 let slideNumber = 0;
 
 let thecanvas;
