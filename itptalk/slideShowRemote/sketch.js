@@ -42,8 +42,8 @@ function setup()
  
   sendButton = createButton('NEXT');
   sendButton.position(0, 0);
-  sendButton.mousePressed(sendTheMessage);
-  sendButton.size(windowWidth,windowHeight);
+  sendButton.mousePressed(sendTheMessage(1));
+  sendButton.size(200,200);
 
 }
 
@@ -55,12 +55,20 @@ function draw()
 
 
 //sends from the button press
-function sendTheMessage() 
+function sendTheMessage(let how) 
 {
-
+if(how==1)
+{
 slideNumber = ((slideNumber+1)<=(totalImages)) ? slideNumber+=1 : 1; //shorthand for conditional assignment
-
-
+}
+if(how==2)
+{
+slideNumber = ((slideNumber-1)>=1) ? slideNumber-=1 : 1; //shorthand for conditional assignment
+}
+if(how==0)
+{
+slideNumber = 1; //shorthand for conditional assignment
+}
 console.log(slideNumber);
 
   //publish the number to everyone.

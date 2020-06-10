@@ -38,7 +38,7 @@ function preload()
 function setup() 
 {
   getAudioContext().resume();
-  thecanvas = createCanvas(windowWidth, windowHeight);
+  thecanvas = createCanvas(windowWidth, 800);
   thecanvas.parent('p555');
   background(255);
   
