@@ -14,7 +14,7 @@ let subKey = 'sub-c-fc2a3f56-3865-11ea-afe9-722fee0ed680';
 //input variables
 
 let nextButton;
-let slideNumber=0;
+let slideNumber=1;
 let totalImages = 50;
 
 
