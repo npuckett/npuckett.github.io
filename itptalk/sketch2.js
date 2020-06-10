@@ -18,9 +18,9 @@ let channelName = "powerpoint";
 
 
 //image variables
-let img;
+var slidehold;
 let totalImages = 50;
-let slideNumber = 0;
+let slideNumber = 1;
 
 let thecanvas;
 /*
@@ -68,7 +68,7 @@ imageMode(CENTER);
 function draw() 
 {
     background(255);
-    image(img,mouseX,mouseY); //show the image corresponds to the slide number in the array
+    image(slidehold,mouseX,mouseY); //show the image corresponds to the slide number in the array
 
 }
 
@@ -76,7 +76,7 @@ function readIncoming(inMessage) //when new data comes in it triggers this funct
 {                               
     
     slideNumber = inMessage.message.slide;
-    img = loadImage("slideimg/Slide" + slideNumber + ".JPG");
+    slidehold = loadImage("slideimg/Slide" + slideNumber + ".JPG");
     
 
 }
