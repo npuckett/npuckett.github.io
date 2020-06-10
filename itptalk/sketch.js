@@ -28,7 +28,7 @@ function preload()
   //rather than making separate variables we are loading them all into an array
   for (let i = 0; i<totalImages; i++) 
   {
-    img[i] = loadImage("slideimg/Slide" + (i+1) + ".jpg");
+    img[i] = loadImage("slideimg/Slide" + (i+1) + ".JPG");
   }
 
 }
