@@ -15,7 +15,7 @@ let subKey = 'sub-c-fc2a3f56-3865-11ea-afe9-722fee0ed680';
 
 let nextButton;
 let slideNumber=0;
-let totalImages = 4;
+let totalImages = 50;
 
 
 //name used to sort your messages. used like a radio station. can be called anything
