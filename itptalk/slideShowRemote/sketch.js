@@ -14,6 +14,9 @@ let subKey = 'sub-c-fc2a3f56-3865-11ea-afe9-722fee0ed680';
 //input variables
 
 let nextButton;
+let prevButton;
+let resetButton;
+
 let slideNumber=0;
 let totalImages = 50;
 
@@ -40,10 +43,20 @@ function setup()
 
   //create the button
  
-  sendButton = createButton('NEXT');
-  sendButton.position(0, 0);
-  sendButton.mousePressed(sendTheMessage(1));
-  sendButton.size(200,200);
+  nextButton = createButton('NEXT');
+  nextButton.position(0, 0);
+  nextButton.mousePressed(function() { sendTheMessage(1);});
+  nextButton.size(200,200);
+
+  prevButton = createButton('PREV');
+  prevButton.position(220, 0);
+  prevButton.mousePressed(function() { sendTheMessage(2);});
+  prevButton.size(200,200);
+
+  resetButton = createButton('RESET');
+  resetButton.position(440, 0);
+  resetButton.mousePressed(function() { sendTheMessage(0);});
+  resetButton.size(200,200);
 
 }
 
@@ -55,7 +68,7 @@ function draw()
 
 
 //sends from the button press
-function sendTheMessage(let how) 
+function sendTheMessage(how) 
 {
 if(how==1)
 {
