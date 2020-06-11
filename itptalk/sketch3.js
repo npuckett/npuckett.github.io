@@ -22,9 +22,10 @@ var slidehold;
 let totalImages = 51;
 let slideNumber = 0;
 
-let vidSlideNumber = [2,20,15,24,26,29,33,38,40,41,42,43,45,48];
+let vidSlideNumber = [2,12,20,15,24,26,28,33,38,40,41,42,43,46,48];
 let vidID = [
     136869177,
+    195106372,
     194774588,
     194766883,
     193783285,
