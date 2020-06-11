@@ -35,6 +35,20 @@ function preload()
 }
 */
 
+var options = {
+    id: 231601301,
+    width: 640,
+    loop: true,
+    autoplay: true
+};
+
+var player = new Vimeo.Player('videos',options);
+player.setVolume(0);
+
+player.on('play', function() {
+    console.log('played the video!');
+});
+
 function setup() 
 {
   getAudioContext().resume();
@@ -63,30 +77,15 @@ imageMode(CENTER);
     textSize(30)
     text("Waiting", width/2, height/2);
 
-    //playVideo(397476627);
+    playVideo(397476627);
 
   
-    var options = {
-        id: 397476627,
-        width: 640,
-        loop: true,
-        autoplay: true
-    };
-
-    var player = new Vimeo.Player('videos',options);
-
-    player.setVolume(0);
-
-    player.on('play', function() {
-        console.log('played the video!');
-    });
-
 
 }
 
 function draw() 
 {
-    background(255);
+    background(100);
     if(slideNumber>0)
     {
     image(slidehold,mouseX,mouseY); //show the image corresponds to the slide number in the array
@@ -102,11 +101,13 @@ function readIncoming(inMessage) //when new data comes in it triggers this funct
 
 }
 
+
+
 function playVideo (videoNumber)
 {
-      
+     console.log('tried'); 
     var options = {
-        id: 397476627,
+        id: videoNumber,
         width: 640,
         loop: true,
         autoplay: true
@@ -123,3 +124,9 @@ function playVideo (videoNumber)
 
 }
 
+
+function mouseClicked()
+{
+    console.log("why??");
+    playVideo(231601301);
+}

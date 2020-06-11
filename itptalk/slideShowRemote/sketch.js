@@ -18,7 +18,7 @@ let prevButton;
 let resetButton;
 
 let slideNumber=0;
-let totalImages = 50;
+let totalImages = 51;
 
 
 //name used to sort your messages. used like a radio station. can be called anything
