@@ -63,6 +63,25 @@ imageMode(CENTER);
     textSize(30)
     text("Waiting", width/2, height/2);
 
+    //playVideo(397476627);
+
+  
+    var options = {
+        id: 397476627,
+        width: 640,
+        loop: true,
+        autoplay: true
+    };
+
+    var player = new Vimeo.Player('videos',options);
+
+    player.setVolume(0);
+
+    player.on('play', function() {
+        console.log('played the video!');
+    });
+
+
 }
 
 function draw() 
@@ -80,6 +99,27 @@ function readIncoming(inMessage) //when new data comes in it triggers this funct
     slideNumber = inMessage.message.slide;
     slidehold = loadImage("slideimg/Slide" + slideNumber + ".JPG");
     
+
+}
+
+function playVideo (videoNumber)
+{
+      
+    var options = {
+        id: 397476627,
+        width: 640,
+        loop: true,
+        autoplay: true
+    };
+
+    var player = new Vimeo.Player('videos',options);
+
+    player.setVolume(0);
+
+    player.on('play', function() {
+        console.log('played the video!');
+    });
+
 
 }
 
