@@ -59,7 +59,7 @@ class WangTile {
 
 function setup() {
   // Set canvas size based on screen height
-  canvasHeight = windowHeight - 100; // Subtract 100 to leave some space for sliders
+  canvasHeight = windowHeight - 400; // Subtract 100 to leave some space for sliders
   canvasWidth = (canvasHeight / GRID_SIZE) * (GRID_SIZE * 115 / 184);
   createCanvas(canvasWidth, canvasHeight);
   
