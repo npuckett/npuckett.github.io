@@ -30,7 +30,7 @@ class WangTile {
 
     // Draw tile background
     
-    fill(247, 166, 235);
+    fill(186, 87, 176);
     rect(0, 0, this.w, this.h);
 
     // Draw triangles
