@@ -4,15 +4,18 @@ let tileWidth, tileHeight;
 let canvasWidth, canvasHeight;
 
 // Adjustable parameters
-let gapSize = 2;
-let triangleGap = 1;
-let tileColor;
+let outerGapSize = 2;
+let innerGapSize = 1;
+let tileColor, backgroundColor;
 
 // Sliders and their values
-let baseSpeedSlider, randomnessSlider, recalcSlider;
+let baseSpeedSlider, randomnessSlider, recalcSlider, outerGapSlider, innerGapSlider;
 let baseSpeed, randomness, recalcInterval;
 let lastRecalcTime = 0;
-let showSliders = true;
+let showControls = true;
+
+// Color pickers
+let tileColorPicker, backgroundColorPicker;
 
 class WangTile {
   constructor(x, y, w, h) {
@@ -27,20 +30,22 @@ class WangTile {
   display() {
     push();
     translate(this.x, this.y);
-
+    noStroke();
     // Draw tile background
-    
-    fill(237, 121, 225);
+    fill(backgroundColor);
     rect(0, 0, this.w, this.h);
 
     // Draw triangles
     fill(tileColor);
-    noStroke();
+    
 
-    if (this.triangles[0]) triangle(gapSize, gapSize + triangleGap, this.w/2, this.h/2, gapSize, this.h - gapSize - triangleGap);
-    if (this.triangles[1]) triangle(gapSize + triangleGap, gapSize, this.w - gapSize - triangleGap, gapSize, this.w/2, this.h/2);
-    if (this.triangles[2]) triangle(this.w - gapSize, gapSize + triangleGap, this.w - gapSize, this.h - gapSize - triangleGap, this.w/2, this.h/2);
-    if (this.triangles[3]) triangle(gapSize + triangleGap, this.h - gapSize, this.w - gapSize - triangleGap, this.h - gapSize, this.w/2, this.h/2);
+    let halfW = this.w / 2;
+    let halfH = this.h / 2;
+
+    if (this.triangles[0]) triangle(outerGapSize, outerGapSize, outerGapSize, this.h - outerGapSize, halfW - innerGapSize, halfH);
+    if (this.triangles[1]) triangle(outerGapSize, outerGapSize, this.w - outerGapSize, outerGapSize, halfW, halfH - innerGapSize);
+    if (this.triangles[2]) triangle(this.w - outerGapSize, outerGapSize, this.w - outerGapSize, this.h - outerGapSize, halfW + innerGapSize, halfH);
+    if (this.triangles[3]) triangle(outerGapSize, this.h - outerGapSize, this.w - outerGapSize, this.h - outerGapSize, halfW, halfH + innerGapSize);
 
     pop();
   }
@@ -59,11 +64,13 @@ class WangTile {
 
 function setup() {
   // Set canvas size based on screen height
-  canvasHeight = windowHeight - 400; // Subtract 100 to leave some space for sliders
+  canvasHeight = windowHeight - 150; // Subtract 150 to leave more space for controls
   canvasWidth = (canvasHeight / GRID_SIZE) * (GRID_SIZE * 115 / 184);
   createCanvas(canvasWidth, canvasHeight);
   
-  tileColor = color(245, 66, 218);
+  // Load colors from localStorage or use defaults
+  tileColor = color(localStorage.getItem('tileColor') || '#000000');
+  backgroundColor = color(localStorage.getItem('backgroundColor') || '#FFFFFF');
 
   // Calculate tile size based on canvas size, grid, and aspect ratio
   tileHeight = canvasHeight / GRID_SIZE;
@@ -80,17 +87,37 @@ function setup() {
   baseSpeedSlider = createSlider(100, 5000, 1000, 100);
   randomnessSlider = createSlider(0, 2000, 500, 100);
   recalcSlider = createSlider(1000, 10000, 5000, 1000);
+  outerGapSlider = createSlider(0, 20, 2, 1);
+  innerGapSlider = createSlider(0, 20, 1, 1);
+
+  // Create color pickers
+  tileColorPicker = createColorPicker(tileColor);
+  backgroundColorPicker = createColorPicker(backgroundColor);
   
-  positionSliders();
+  // Add event listeners to color pickers
+  tileColorPicker.input(() => {
+    tileColor = tileColorPicker.color();
+    localStorage.setItem('tileColor', tileColor.toString('#rrggbb'));
+  });
+  
+  backgroundColorPicker.input(() => {
+    backgroundColor = backgroundColorPicker.color();
+    localStorage.setItem('backgroundColor', backgroundColor.toString('#rrggbb'));
+  });
+  
+  createGUILabels();
+  positionControls();
 }
 
 function draw() {
-  background(0);
+  background(220);
 
-  // Update slider values
+  // Update slider and color picker values
   baseSpeed = baseSpeedSlider.value();
   randomness = randomnessSlider.value();
   recalcInterval = recalcSlider.value();
+  outerGapSize = outerGapSlider.value();
+  innerGapSize = innerGapSlider.value();
 
   let currentTime = millis();
 
@@ -107,33 +134,48 @@ function draw() {
     tile.update(currentTime);
     tile.display();
   }
+}
 
-  // Display slider values if shown
-  if (showSliders) {
-    fill(0);
-    text(`Base Speed: ${baseSpeed}ms`, 10, height - 60);
-    text(`Randomness: ±${randomness}ms`, 10, height - 40);
-    text(`Recalc Interval: ${recalcInterval}ms`, 10, height - 20);
-  }
+function createGUILabels() {
+  createElement('label', 'Base Speed').attribute('for', 'baseSpeedSlider');
+  createElement('label', 'Randomness').attribute('for', 'randomnessSlider');
+  createElement('label', 'Recalc Interval').attribute('for', 'recalcSlider');
+  createElement('label', 'Outer Gap').attribute('for', 'outerGapSlider');
+  createElement('label', 'Inner Gap').attribute('for', 'innerGapSlider');
+  createElement('label', 'Tile Color').attribute('for', 'tileColorPicker');
+  createElement('label', 'Background Color').attribute('for', 'backgroundColorPicker');
+}
+
+function positionControls() {
+  let yOffset = height + 30;
+  let labelOffset = -15;
+
+  baseSpeedSlider.position(10, yOffset).id('baseSpeedSlider');
+  randomnessSlider.position(10, yOffset + 40).id('randomnessSlider');
+  recalcSlider.position(10, yOffset + 80).id('recalcSlider');
+  outerGapSlider.position(250, yOffset).id('outerGapSlider');
+  innerGapSlider.position(250, yOffset + 40).id('innerGapSlider');
+  tileColorPicker.position(490, yOffset).id('tileColorPicker');
+  backgroundColorPicker.position(490, yOffset + 40).id('backgroundColorPicker');
+
+  // Position labels
+  select('label[for="baseSpeedSlider"]').position(10, yOffset + labelOffset);
+  select('label[for="randomnessSlider"]').position(10, yOffset + 40 + labelOffset);
+  select('label[for="recalcSlider"]').position(10, yOffset + 80 + labelOffset);
+  select('label[for="outerGapSlider"]').position(250, yOffset + labelOffset);
+  select('label[for="innerGapSlider"]').position(250, yOffset + 40 + labelOffset);
+  select('label[for="tileColorPicker"]').position(490, yOffset + labelOffset);
+  select('label[for="backgroundColorPicker"]').position(490, yOffset + 40 + labelOffset);
 }
 
 function keyPressed() {
   if (key === ' ') {
-    showSliders = !showSliders;
-    baseSpeedSlider.style('display', showSliders ? 'block' : 'none');
-    randomnessSlider.style('display', showSliders ? 'block' : 'none');
-    recalcSlider.style('display', showSliders ? 'block' : 'none');
+    saveCanvas('wang_tiling', 'png');
   }
 }
 
-function positionSliders() {
-  baseSpeedSlider.position(10, height + 10);
-  randomnessSlider.position(10, height + 40);
-  recalcSlider.position(10, height + 70);
-}
-
 function windowResized() {
-  canvasHeight = windowHeight - 100;
+  canvasHeight = windowHeight - 150;
   canvasWidth = (canvasHeight / GRID_SIZE) * (GRID_SIZE * 115 / 184);
   resizeCanvas(canvasWidth, canvasHeight);
   
@@ -148,18 +190,5 @@ function windowResized() {
     }
   }
   
-  positionSliders();
-}
-
-// Functions to allow dynamic changes
-function setGapSize(size) {
-  gapSize = size;
-}
-
-function setTriangleGap(size) {
-  triangleGap = size;
-}
-
-function setTileColor(r, g, b) {
-  tileColor = color(r, g, b);
+  positionControls();
 }
