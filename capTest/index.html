@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body { 
+      margin: 0; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      background: #f0f0f0; 
+      padding: 20px;
+    }
+    .canvas-container {
+      display: flex;
+      gap: 20px;
+    }
+    #controls {
+      margin: 20px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">Press SPACEBAR to capture and save image</div>
+  <div class="canvas-container" id="canvasContainer"></div>
+
+  <script>
+    let x, y;
+    let speed = 3;
+    let direction = 1;
+    let mainCanvas, displayCanvas;
+    let captures = [];
+    const BORDER_SIZE = 2;
+    let captureCount = 0;
+
+    function setup() {
+      // Create main canvas for animation
+      mainCanvas = createCanvas(400, 400);
+      mainCanvas.parent('canvasContainer');
+      
+      // Create second canvas for displaying captured images
+      displayCanvas = createGraphics(400, 400);
+      let displayP5 = new p5((p) => {
+        p.setup = () => {
+          p.createCanvas(400, 400);
+          p.background(220);
+        };
+        
+        p.draw = () => {
+          p.background(220);
+          
+          if (captures.length === 0) return;
+          
+          // Calculate grid dimensions based on number of captures
+          let gridSize = Math.ceil(Math.sqrt(captures.length));
+          let cellSize = Math.floor(400 / gridSize) - BORDER_SIZE * 2;
+          
+          // Display all captured images in a grid
+          for (let i = 0; i < captures.length; i++) {
+            let row = Math.floor(i / gridSize);
+            let col = i % gridSize;
+            let x = col * (cellSize + BORDER_SIZE * 2);
+            let y = row * (cellSize + BORDER_SIZE * 2);
+            
+            // Draw border
+            p.noStroke();
+            p.fill(100);
+            p.rect(x, y, cellSize + BORDER_SIZE * 2, cellSize + BORDER_SIZE * 2);
+            
+            // Draw image
+            p.image(captures[i], x + BORDER_SIZE, y + BORDER_SIZE, cellSize, cellSize);
+            
+            // Draw capture number
+            p.fill(255);
+            p.stroke(0);
+            p.strokeWeight(2);
+            p.textSize(Math.max(12, cellSize / 10));
+            p.textAlign(p.LEFT, p.TOP);
+            p.text(`#${i + 1}`, x + BORDER_SIZE + 5, y + BORDER_SIZE + 5);
+          }
+        };
+      }, 'canvasContainer');
+
+      x = width / 2;
+      y = height / 2;
+      background(220);
+    }
+
+    function draw() {
+      background(220);
+      
+      // Move circle
+      x += speed * direction;
+      if (x > width - 25 || x < 25) {
+        direction *= -1;
+      }
+      
+      // Draw circle
+      fill(0, 120, 255);
+      noStroke();
+      circle(x, y, 50);
+    }
+
+    function keyPressed() {
+      if (keyCode === 32) { // Spacebar
+        captureCount++;
+        
+        // Save the image to local directory
+        saveCanvas(mainCanvas, `capture_${captureCount}`, 'png');
+        
+        // Add to captures array for display
+        captures.push(get());
+      }
+    }
+  </script>
+</body>
+</html>

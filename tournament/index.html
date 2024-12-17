@@ -1,0 +1,171 @@
+import React, { useState, useEffect } from 'react';
+
+const Tournament = () => {
+  const createRNG = seed => {
+    let state = Array.from(seed.toString()).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return () => {
+      state = Math.sin(state) * 10000;
+      return state - Math.floor(state);
+    };
+  };
+
+  const groups = {
+    1: ['Peter', 'Joshua', 'Jakob', 'JC'],
+    2: ['Thea', 'Zhiheng', 'Kasper', 'Harry'],
+    3: ['Erinma', 'Mahnoor', 'Golnoush', 'Olivia'],
+    4: ['Yudi', 'Snow', 'Wenjia'],
+    5: ['Gillian', 'Assal'],
+    6: ['Paul']
+  };
+
+  const generateBracket = (seed) => {
+    const rng = createRNG(seed);
+    const allPlayers = Object.values(groups).flat();
+    const playerGroups = {};
+    Object.entries(groups).forEach(([group, players]) => {
+      players.forEach(player => playerGroups[player] = parseInt(group));
+    });
+
+    const shuffled = [...allPlayers].sort(() => rng() - 0.5);
+    const matches = [];
+    const used = new Set();
+
+    for (let i = 0; i < shuffled.length; i++) {
+      if (!used.has(shuffled[i])) {
+        const validOpponents = shuffled.filter(p => 
+          !used.has(p) && playerGroups[p] !== playerGroups[shuffled[i]]
+        );
+        if (validOpponents.length) {
+          const opponent = validOpponents[Math.floor(rng() * validOpponents.length)];
+          matches.push([shuffled[i], opponent, null]);
+          used.add(shuffled[i]);
+          used.add(opponent);
+        } else if (!used.has(shuffled[i])) {
+          matches.push([shuffled[i], null, null]);
+          used.add(shuffled[i]);
+        }
+      }
+    }
+
+    const matchCount = Math.pow(2, Math.ceil(Math.log2(allPlayers.length)));
+    const rounds = [matches];
+    
+    // Generate symmetrical empty rounds
+    for (let i = 1; i < Math.log2(matchCount); i++) {
+      const roundMatches = matchCount / Math.pow(2, i);
+      const emptyRound = Array(Math.ceil(roundMatches)).fill(null).map(() => [null, null, null]);
+      rounds.push(emptyRound);
+    }
+    return rounds;
+  };
+
+  const [seed, setSeed] = useState(() => {
+    const saved = localStorage.getItem('tournamentSeed');
+    return saved || Date.now().toString();
+  });
+
+  const [rounds, setRounds] = useState(() => {
+    const saved = localStorage.getItem('tournamentRounds');
+    if (saved) return JSON.parse(saved);
+    return generateBracket(seed);
+  });
+
+  useEffect(() => {
+    const handleKeyPress = e => {
+      if (e.key === 'r') {
+        const newSeed = Date.now().toString();
+        setSeed(newSeed);
+        setRounds(generateBracket(newSeed));
+        localStorage.setItem('tournamentSeed', newSeed);
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('tournamentRounds', JSON.stringify(rounds));
+  }, [rounds]);
+
+  const handleWinner = (roundIndex, matchIndex, winnerIndex) => {
+    const newRounds = [...rounds];
+    const currentMatch = newRounds[roundIndex][matchIndex];
+    const winner = currentMatch[winnerIndex];
+    currentMatch[2] = winnerIndex;
+
+    if (roundIndex + 1 < newRounds.length) {
+      const nextMatchIndex = Math.floor(matchIndex / 2);
+      const nextMatch = newRounds[roundIndex + 1][nextMatchIndex];
+      const position = matchIndex % 2;
+      nextMatch[position] = winner;
+    }
+
+    setRounds(newRounds);
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-4">
+      <h1 className="text-3xl font-bold text-center mb-12 text-gray-800">PONG DAY</h1>
+      <div className="relative flex gap-16 justify-center overflow-x-auto p-4">
+        {rounds.map((matches, roundIndex) => (
+          <div key={roundIndex} className="flex-none w-64">
+            <div 
+              className="flex flex-col" 
+              style={{
+                gap: `${80 * Math.pow(2, roundIndex)}px`,
+                marginTop: `${40 * (Math.pow(2, roundIndex) - 1)}px`
+              }}
+            >
+              {matches.map((match, matchIndex) => (
+                <div key={matchIndex} className="relative">
+                  <div className="border-2 border-gray-700 rounded p-2 bg-white shadow-md">
+                    {match[0] !== null && (
+                      <button
+                        className={`w-full p-2 text-left rounded ${
+                          match[2] === 0 ? 'bg-green-300' : 'hover:bg-gray-100'
+                        }`}
+                        onClick={() => handleWinner(roundIndex, matchIndex, 0)}
+                      >
+                        {match[0] || ''}
+                      </button>
+                    )}
+                    {match[0] !== null && match[1] !== null && (
+                      <div className="text-center font-bold py-1 text-gray-700">VS</div>
+                    )}
+                    {match[1] !== null && (
+                      <button
+                        className={`w-full p-2 text-left rounded ${
+                          match[2] === 1 ? 'bg-green-300' : 'hover:bg-gray-100'
+                        }`}
+                        onClick={() => handleWinner(roundIndex, matchIndex, 1)}
+                      >
+                        {match[1] || ''}
+                      </button>
+                    )}
+                  </div>
+                  {roundIndex < rounds.length - 1 && (
+                    <>
+                      <div className="absolute h-1/2 w-12 border-r-2 border-gray-700 right-0 top-1/2 translate-x-full" />
+                      {matchIndex % 2 === 0 && (
+                        <div className="absolute h-full w-12 border-b-2 border-gray-700 right-0 translate-x-full" />
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {rounds[rounds.length - 1]?.length === 1 && (
+          <div className="flex-none w-64 flex items-center justify-center">
+            <h2 className="text-2xl font-bold text-center p-6 bg-yellow-300 rounded-lg border-2 border-gray-700 shadow-lg">
+              PONG CHAMPION
+            </h2>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Tournament;
