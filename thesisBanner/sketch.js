@@ -38,7 +38,7 @@ function setup() {
   physics = new VerletPhysics2D();
   physics.setDrag(PHYSICS_DRAG);
   
-  let bounds = new Rect(0, 0, width, height-10);
+  let bounds = new Rect(10, 10, width-10, height-20);
   physics.setWorldBounds(bounds);
   
   // Add initial gentle gravity
@@ -126,11 +126,19 @@ function draw() {
   }
 }
 
+
+
 function mousePressed() {
-  if (!isStrongGravity) {
-    physics.removeBehavior(gravityBehavior);
-    gravityBehavior = new GravityBehavior(new Vec2D(0, CLICK_GRAVITY));
-    physics.addBehavior(gravityBehavior);
-    isStrongGravity = true;
-  }
+  // Generate random gravity value between -CLICK_GRAVITY and CLICK_GRAVITY
+  let randomGravity = random(-CLICK_GRAVITY, CLICK_GRAVITY);
+  
+  // Remove current gravity behavior
+  physics.removeBehavior(gravityBehavior);
+  
+  // Create and add new gravity behavior with random value
+  gravityBehavior = new GravityBehavior(new Vec2D(0, randomGravity));
+  physics.addBehavior(gravityBehavior);
+  
+  // Always set to true since we want to allow multiple clicks
+  isStrongGravity = true;
 }
