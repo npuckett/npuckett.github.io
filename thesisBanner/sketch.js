@@ -16,26 +16,26 @@ let sliderLabels = [];
 let showSliders = false;
 
 function setupSliders() {
-  sliders.push(createSlider(0, 1, INITIAL_GRAVITY, 0.01).position(10, 210).style('width', '180px'));
-  sliderLabels.push(createP('Initial Gravity').position(10, 220));
+  sliders.push(createSlider(0, 1, INITIAL_GRAVITY, 0.01).position(10, 10).style('width', '180px'));
+  sliderLabels.push(createP('Initial Gravity').position(10, 30));
   
-  sliders.push(createSlider(0, 1, CLICK_GRAVITY, 0.01).position(210, 210).style('width', '180px'));
-  sliderLabels.push(createP('Click Gravity').position(210, 220));
+  sliders.push(createSlider(0, 1, CLICK_GRAVITY, 0.01).position(210, 10).style('width', '180px'));
+  sliderLabels.push(createP('Click Gravity').position(210, 30));
   
-  sliders.push(createSlider(0, 1, MIN_SPRING, 0.01).position(410, 210).style('width', '180px'));
-  sliderLabels.push(createP('Min Spring').position(410, 220));
+  sliders.push(createSlider(0, 1, MIN_SPRING, 0.01).position(410, 10).style('width', '180px'));
+  sliderLabels.push(createP('Min Spring').position(410, 30));
   
-  sliders.push(createSlider(0, 1, MAX_SPRING, 0.01).position(610, 210).style('width', '180px'));
-  sliderLabels.push(createP('Max Spring').position(610, 220));
+  sliders.push(createSlider(0, 1, MAX_SPRING, 0.01).position(610, 10).style('width', '180px'));
+  sliderLabels.push(createP('Max Spring').position(610, 30));
   
-  sliders.push(createSlider(0, 100, SPRING_DISTANCE, 1).position(10, 270).style('width', '180px'));
-  sliderLabels.push(createP('Spring Distance').position(10, 280));
+  sliders.push(createSlider(0, 100, SPRING_DISTANCE, 1).position(10, 70).style('width', '180px'));
+  sliderLabels.push(createP('Spring Distance').position(10, 90));
   
-  sliders.push(createSlider(0, 1, PHYSICS_DRAG, 0.01).position(210, 270).style('width', '180px'));
-  sliderLabels.push(createP('Physics Drag').position(210, 280));
+  sliders.push(createSlider(0, 1, PHYSICS_DRAG, 0.01).position(210, 70).style('width', '180px'));
+  sliderLabels.push(createP('Physics Drag').position(210, 90));
   
-  sliders.push(createSlider(1, 10, PARTICLE_SIZE, 1).position(410, 270).style('width', '180px'));
-  sliderLabels.push(createP('Particle Size').position(410, 280));
+  sliders.push(createSlider(1, 10, PARTICLE_SIZE, 1).position(410, 70).style('width', '180px'));
+  sliderLabels.push(createP('Particle Size').position(410, 90));
   
   for (let slider of sliders) {
     slider.hide();
