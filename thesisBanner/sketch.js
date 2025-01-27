@@ -12,32 +12,37 @@ const PHYSICS_DRAG = 0.1;        // Air resistance essentially
 const PARTICLE_SIZE = 4;         // Size of dots
 
 let sliders = [];
+let sliderLabels = [];
 let showSliders = false;
 
 function setupSliders() {
   sliders.push(createSlider(0, 1, INITIAL_GRAVITY, 0.01).position(10, 210).style('width', '180px'));
-  createP('Initial Gravity').position(200, 210);
+  sliderLabels.push(createP('Initial Gravity').position(10, 220));
   
   sliders.push(createSlider(0, 1, CLICK_GRAVITY, 0.01).position(210, 210).style('width', '180px'));
-  createP('Click Gravity').position(400, 210);
+  sliderLabels.push(createP('Click Gravity').position(210, 220));
   
   sliders.push(createSlider(0, 1, MIN_SPRING, 0.01).position(410, 210).style('width', '180px'));
-  createP('Min Spring').position(600, 210);
+  sliderLabels.push(createP('Min Spring').position(410, 220));
   
   sliders.push(createSlider(0, 1, MAX_SPRING, 0.01).position(610, 210).style('width', '180px'));
-  createP('Max Spring').position(800, 210);
+  sliderLabels.push(createP('Max Spring').position(610, 220));
   
-  sliders.push(createSlider(0, 100, SPRING_DISTANCE, 1).position(10, 240).style('width', '180px'));
-  createP('Spring Distance').position(200, 240);
+  sliders.push(createSlider(0, 100, SPRING_DISTANCE, 1).position(10, 270).style('width', '180px'));
+  sliderLabels.push(createP('Spring Distance').position(10, 280));
   
-  sliders.push(createSlider(0, 1, PHYSICS_DRAG, 0.01).position(210, 240).style('width', '180px'));
-  createP('Physics Drag').position(400, 240);
+  sliders.push(createSlider(0, 1, PHYSICS_DRAG, 0.01).position(210, 270).style('width', '180px'));
+  sliderLabels.push(createP('Physics Drag').position(210, 280));
   
-  sliders.push(createSlider(1, 10, PARTICLE_SIZE, 1).position(410, 240).style('width', '180px'));
-  createP('Particle Size').position(600, 240);
+  sliders.push(createSlider(1, 10, PARTICLE_SIZE, 1).position(410, 270).style('width', '180px'));
+  sliderLabels.push(createP('Particle Size').position(410, 280));
   
   for (let slider of sliders) {
     slider.hide();
+  }
+  
+  for (let label of sliderLabels) {
+    label.hide();
   }
 }
 
@@ -48,6 +53,13 @@ function toggleSliders() {
       slider.show();
     } else {
       slider.hide();
+    }
+  }
+  for (let label of sliderLabels) {
+    if (showSliders) {
+      label.show();
+    } else {
+      label.hide();
     }
   }
 }
