@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let roboto;
+        let totalPixels;
+        const ARDUINO_PIXELS = 96; // 8x12 LED matrix
+        
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            textFont('Roboto');
+            textAlign(CENTER, CENTER);
+            totalPixels = windowWidth * windowHeight;
+        }
+
+        function draw() {
+            // Digital Lavender background
+            background('#E6E6FA');
+            
+            // Set text properties
+            fill(33);
+            noStroke();
+            
+            // Calculate percentage difference
+            let percentDiff = ((totalPixels - ARDUINO_PIXELS) / ARDUINO_PIXELS * 100).toFixed(2);
+            
+            // Display resolution text
+            textSize(windowWidth * 0.06);
+            text(`${windowWidth} × ${windowHeight}`, width/2, height/2 - 80);
+            
+            // Display total pixels
+            textSize(windowWidth * 0.04);
+            text(`${totalPixels.toLocaleString()} total pixels`, width/2, height/2);
+            
+            // Display comparison to Arduino
+            text(`${percentDiff}% larger than Arduino's 96 pixels`, width/2, height/2 + 80);
+            
+            // Add reference to Arduino matrix size
+            textSize(windowWidth * 0.025);
+            text('(Arduino LED Matrix: 8 × 12 = 96 pixels)', width/2, height/2 + 150);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            totalPixels = windowWidth * windowHeight;
+        }
+    </script>
+</body>
+</html>
