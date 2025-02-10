@@ -143,19 +143,16 @@
       createLoop({
         duration: duration / 1000,
         gif: {
+          render: () => {
+            if (statusElement) statusElement.textContent = 'Complete!';
+            setTimeout(() => {
+              if (statusElement) statusElement.textContent = '';
+            }, 2000);
+          },
           fileName: 'animation.gif',
           download: true,
           startLoop: 0,
-          endLoop: 1,
-          options: {
-            onComplete: () => {
-              processingGif = false;
-              if (statusElement) statusElement.textContent = 'Complete!';
-              setTimeout(() => {
-                if (statusElement) statusElement.textContent = '';
-              }, 2000);
-            }
-          }
+          endLoop: 1
         }
       });
     }
@@ -172,6 +169,9 @@
     document.getElementById('fileInput').addEventListener('change', function(e) {
       let file = e.target.files[0];
       if (!file) return;
+
+      const statusElement = document.getElementById('status');
+      if (statusElement) statusElement.textContent = '';
 
       let reader = new FileReader();
       reader.onload = function(e) {
