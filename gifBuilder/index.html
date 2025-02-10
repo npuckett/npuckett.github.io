@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://unpkg.com/p5.createloop@0.2.8/dist/p5.createloop.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    .controls {
+      margin: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <input type="file" id="fileInput" accept=".h">
+    <button onclick="togglePlayback()">Play/Pause</button>
+    <button onclick="toggleBoomerang()">Toggle Boomerang</button>
+    <button onclick="saveAnimation()">Save GIF</button>
+  </div>
+  <script>
+    let frames = [];
+    let currentFrame = 0;
+    let lastFrameTime = 0;
+    let isPlaying = true;
+    let isBoomerang = false;
+    let direction = 1;
+    let cellSize;
+    let gridWidth = 12;
+    let gridHeight = 8;
+
+    function setup() {
+      createCanvas(600, 400);
+      cellSize = min(width / gridWidth, height / gridHeight);
+      frameRate(60);
+    }
+
+    function draw() {
+      background(220);
+      
+      if (frames.length === 0) {
+        drawPlaceholder();
+        return;
+      }
+
+      let currentTime = millis();
+      if (isPlaying && currentTime - lastFrameTime >= frames[currentFrame][3]) {
+        lastFrameTime = currentTime;
+        updateFrame();
+      }
+
+      drawFrame(frames[currentFrame]);
+    }
+
+    function drawPlaceholder() {
+      fill(180);
+      textAlign(CENTER, CENTER);
+      textSize(16);
+      text('Upload a .h file to view animation', width/2, height/2);
+    }
+
+    function updateFrame() {
+      if (isBoomerang) {
+        currentFrame += direction;
+        if (currentFrame >= frames.length - 1 || currentFrame <= 0) {
+          direction *= -1;
+        }
+      } else {
+        currentFrame = (currentFrame + 1) % frames.length;
+      }
+    }
+
+    function drawFrame(frame) {
+      let offsetX = (width - gridWidth * cellSize) / 2;
+      let offsetY = (height - gridHeight * cellSize) / 2;
+
+      for (let y = 0; y < gridHeight; y++) {
+        for (let x = 0; x < gridWidth; x++) {
+          let bitPos = y * gridWidth + x;
+          let arrayIndex = Math.floor(bitPos / 32);
+          let bitIndex = 31 - (bitPos % 32);
+          
+          let isLit = (frame[arrayIndex] & (1 << bitIndex)) !== 0;
+          
+          fill(isLit ? 0 : 255);
+          stroke(100);
+          rect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    function parseHFile(text) {
+      let matches = text.match(/\{([^}]+)\}/g);
+      if (!matches) return [];
+
+      return matches.map(match => {
+        let values = match.match(/0x[0-9a-fA-F]+|[0-9]+/g);
+        if (!values || values.length !== 4) return null;
+        return values.map(val => parseInt(val.startsWith('0x') ? val : '0x' + val));
+      }).filter(frame => frame !== null);
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      let file = e.target.files[0];
+      if (!file) return;
+
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        frames = parseHFile(e.target.result);
+        currentFrame = 0;
+        lastFrameTime = millis();
+      };
+      reader.readAsText(file);
+    });
+
+    function togglePlayback() {
+      isPlaying = !isPlaying;
+      lastFrameTime = millis();
+    }
+
+    function toggleBoomerang() {
+      isBoomerang = !isBoomerang;
+    }
+
+    let isRecording = false;
+
+    function saveAnimation() {
+      if (frames.length === 0 || isRecording) return;
+      
+      isRecording = true;
+      let duration = frames.reduce((sum, frame) => sum + frame[3], 0);
+      if (isBoomerang) duration *= 2;
+      
+      createLoop({
+        duration: duration / 1000,
+        gif: {
+          fileName: 'animation.gif',
+          download: true,
+          startLoop: 0,
+          endLoop: 1
+        }
+      });
+      
+      isRecording = false;
+    }
+  </script>
+</body>
+</html>
