@@ -18,6 +18,7 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
     }
     button {
       padding: 8px 16px;
@@ -31,6 +32,11 @@
     button:hover {
       background: #45a049;
     }
+    #status {
+      color: #666;
+      font-weight: bold;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -39,6 +45,7 @@
     <button onclick="togglePlayback()">Play/Pause</button>
     <button onclick="toggleBoomerang()">Toggle Boomerang</button>
     <button onclick="saveAnimation()">Save GIF</button>
+    <span id="status"></span>
   </div>
   <script>
     let frames = [];
@@ -50,6 +57,7 @@
     let cellSize;
     let gridWidth = 12;
     let gridHeight = 8;
+    let processingGif = false;
 
     function setup() {
       createCanvas(600, 400);
@@ -122,6 +130,45 @@
       }).filter(frame => frame !== null);
     }
 
+    function saveAnimation() {
+      if (frames.length === 0 || processingGif) return;
+      
+      processingGif = true;
+      const statusElement = document.getElementById('status');
+      if (statusElement) statusElement.textContent = 'Processing GIF...';
+      
+      let duration = frames.reduce((sum, frame) => sum + frame[3], 0);
+      if (isBoomerang) duration *= 2;
+      
+      createLoop({
+        duration: duration / 1000,
+        gif: {
+          fileName: 'animation.gif',
+          download: true,
+          startLoop: 0,
+          endLoop: 1,
+          options: {
+            onComplete: () => {
+              processingGif = false;
+              if (statusElement) statusElement.textContent = 'Complete!';
+              setTimeout(() => {
+                if (statusElement) statusElement.textContent = '';
+              }, 2000);
+            }
+          }
+        }
+      });
+    }
+
+    function togglePlayback() {
+      isPlaying = !isPlaying;
+      lastFrameTime = millis();
+    }
+
+    function toggleBoomerang() {
+      isBoomerang = !isBoomerang;
+    }
+
     document.getElementById('fileInput').addEventListener('change', function(e) {
       let file = e.target.files[0];
       if (!file) return;
@@ -134,37 +181,6 @@
       };
       reader.readAsText(file);
     });
-
-    function togglePlayback() {
-      isPlaying = !isPlaying;
-      lastFrameTime = millis();
-    }
-
-    function toggleBoomerang() {
-      isBoomerang = !isBoomerang;
-    }
-
-    let isRecording = false;
-
-    function saveAnimation() {
-      if (frames.length === 0 || isRecording) return;
-      
-      isRecording = true;
-      let duration = frames.reduce((sum, frame) => sum + frame[3], 0);
-      if (isBoomerang) duration *= 2;
-      
-      createLoop({
-        duration: duration / 1000,
-        gif: {
-          fileName: 'animation.gif',
-          download: true,
-          startLoop: 0,
-          endLoop: 1
-        }
-      });
-      
-      isRecording = false;
-    }
   </script>
 </body>
 </html>
