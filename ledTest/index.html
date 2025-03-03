@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Animation System - Improved</title>
+    <style>
+        /* Main document styling */
+        body 
+        {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        /* Container for all content */
+        .container 
+        {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Heading styles */
+        h1, h2 
+        {
+            margin-top: 0;
+        }
+        
+        /* Section for LED previews */
+        .preview-section 
+        {
+            margin-bottom: 30px;
+        }
+        
+        /* Container styles for grid and strip displays */
+        .grid-container, .strip-container 
+        {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        /* Grid layout for 8x4 LED matrix */
+        #grid 
+        {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            aspect-ratio: 2 / 1;
+        }
+        
+        /* Strip layout for LED strip */
+        #strip 
+        {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        /* Individual grid LED styling */
+        .led 
+        {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background-color: #888;
+        }
+        
+        /* Individual strip LED styling */
+        .strip-led 
+        {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #888;
+        }
+        
+        /* Layout for control panels */
+        .controls 
+        {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        /* Individual control panel styling */
+        .control-panel 
+        {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        /* Form label styling */
+        label 
+        {
+            display: block;
+            margin: 8px 0 5px;
+            font-weight: bold;
+        }
+        
+        /* Form input styling */
+        input, select 
+        {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        /* Color preview box styling */
+        .color-preview 
+        {
+            height: 30px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LED Animation System</h1>
+        
+        <div class="preview-section">
+            <h2>Grid Preview (8x4)</h2>
+            <div class="grid-container">
+                <div id="grid"></div>
+            </div>
+            
+            <h2>Strip Preview (<span id="strip-count-display">72</span> LEDs)</h2>
+            <div class="strip-container">
+                <div id="strip"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <!-- Grid control panel -->
+            <div class="control-panel">
+                <h2>Grid Controls</h2>
+                
+                <label for="grid-start-color">Start Color:</label>
+                <input type="color" id="grid-start-color" value="#ff00ff">
+                <div class="color-preview" id="grid-start-preview"></div>
+                
+                <label for="grid-end-color">End Color:</label>
+                <input type="color" id="grid-end-color" value="#00ffff">
+                <div class="color-preview" id="grid-end-preview"></div>
+                
+                <label for="grid-effect">Effect:</label>
+                <select id="grid-effect">
+                    <option value="none">None</option>
+                    <option value="solid">Solid</option>
+                    <option value="pulse" selected>Pulse</option>
+                    <option value="linear">Linear Fade</option>
+                    <option value="constrainbow">Constrainbow</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="wipe">Wipe</option>
+                </select>
+                
+                <!-- Additional controls for linear fade effect -->
+                <div id="grid-linear-controls" style="display: none;">
+                    <label for="grid-linear-angle">Linear Fade Angle:</label>
+                    <input type="range" id="grid-linear-angle" min="0" max="360" step="1" value="0">
+                    <span id="grid-angle-display">0°</span>
+                </div>
+                
+                <label for="grid-speed">Speed:</label>
+                <input type="range" id="grid-speed" min="0.1" max="10" step="0.1" value="1">
+                
+                <label for="grid-playback">Playback Mode:</label>
+                <select id="grid-playback">
+                    <option value="loop" selected>Loop</option>
+                    <option value="boomerang">Boomerang</option>
+                    <option value="once">Once</option>
+                </select>
+            </div>
+            
+            <!-- Strip control panel -->
+            <div class="control-panel">
+                <h2>Strip Controls</h2>
+                
+                <label for="strip-start-color">Start Color:</label>
+                <input type="color" id="strip-start-color" value="#ff0000">
+                <div class="color-preview" id="strip-start-preview"></div>
+                
+                <label for="strip-end-color">End Color:</label>
+                <input type="color" id="strip-end-color" value="#0000ff">
+                <div class="color-preview" id="strip-end-preview"></div>
+                
+                <label for="strip-effect">Effect:</label>
+                <select id="strip-effect">
+                    <option value="none">None</option>
+                    <option value="solid">Solid</option>
+                    <option value="pulse" selected>Pulse</option>
+                    <option value="linear">Linear Fade</option>
+                    <option value="constrainbow">Constrainbow</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="wipe">Wipe</option>
+                </select>
+                
+                <!-- No angle control needed for strip linear fade -->
+                <div id="strip-linear-controls" style="display: none;"></div>
+                
+                <label for="strip-count">Number of LEDs:</label>
+                <input type="number" id="strip-count" min="1" max="300" value="72">
+                
+                <label for="strip-speed">Speed:</label>
+                <input type="range" id="strip-speed" min="0.1" max="10" step="0.1" value="0.5">
+                
+                <label for="strip-playback">Playback Mode:</label>
+                <select id="strip-playback">
+                    <option value="loop" selected>Loop</option>
+                    <option value="boomerang">Boomerang</option>
+                    <option value="once">Once</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================
+        // Global Variables
+        // ========================
+        
+        // Animation timer to track elapsed time for animations
+        let startTime = Date.now();
+        
+        // Arrays to store colors for constrainbow effect
+        let gridConstrainbowColors = [];
+        let stripConstrainbowColors = [];
+        
+        // ========================
+        // Initialization Functions
+        // ========================
+        
+        /**
+         * Creates the 8x4 grid of LEDs in the DOM
+         * Each LED is given a unique ID for later reference
+         */
+        function createGrid() 
+        {
+            const grid = document.getElementById('grid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            // Create 32 LEDs (8x4 grid)
+            for (let i = 0; i < 32; i++) 
+            {
+                const led = document.createElement('div');
+                led.className = 'led';
+                led.id = `grid-led-${i}`;
+                grid.appendChild(led);
+            }
+        }
+        
+        /**
+         * Creates the LED strip in the DOM based on user-defined count
+         * Each LED is given a unique ID for later reference
+         */
+        function createStrip() 
+        {
+            const strip = document.getElementById('strip');
+            if (!strip) return;
+            
+            // Get LED count from input or use default
+            const countInput = document.getElementById('strip-count');
+            const count = countInput ? parseInt(countInput.value) : 72;
+            
+            // Update display of count
+            const countDisplay = document.getElementById('strip-count-display');
+            if (countDisplay) 
+            {
+                countDisplay.textContent = count;
+            }
+            
+            strip.innerHTML = '';
+            
+            // Create the specified number of LEDs
+            for (let i = 0; i < count; i++) 
+            {
+                const led = document.createElement('div');
+                led.className = 'strip-led';
+                led.id = `strip-led-${i}`;
+                strip.appendChild(led);
+            }
+        }
+        
+        /**
+         * Updates the color preview boxes to match the selected colors
+         * This provides visual feedback for color selection
+         */
+        function updateColorPreviews() 
+        {
+            // Get all preview elements
+            const gridStartPreview = document.getElementById('grid-start-preview');
+            const gridEndPreview = document.getElementById('grid-end-preview');
+            const stripStartPreview = document.getElementById('strip-start-preview');
+            const stripEndPreview = document.getElementById('strip-end-preview');
+            
+            // Get all color inputs
+            const gridStartColor = document.getElementById('grid-start-color');
+            const gridEndColor = document.getElementById('grid-end-color');
+            const stripStartColor = document.getElementById('strip-start-color');
+            const stripEndColor = document.getElementById('strip-end-color');
+            
+            // Update preview backgrounds to match input colors
+            if (gridStartPreview && gridStartColor) 
+            {
+                gridStartPreview.style.backgroundColor = gridStartColor.value;
+            }
+            
+            if (gridEndPreview && gridEndColor) 
+            {
+                gridEndPreview.style.backgroundColor = gridEndColor.value;
+            }
+            
+            if (stripStartPreview && stripStartColor) 
+            {
+                stripStartPreview.style.backgroundColor = stripStartColor.value;
+            }
+            
+            if (stripEndPreview && stripEndColor) 
+            {
+                stripEndPreview.style.backgroundColor = stripEndColor.value;
+            }
+        }
+        
+        /**
+         * Resets the animation timer
+         * Used when changing animation settings to start from beginning
+         */
+        function resetAnimations() 
+        {
+            startTime = Date.now();
+            
+            // Reset constrainbow colors
+            gridConstrainbowColors = [];
+            stripConstrainbowColors = [];
+        }
+        
+        /**
+         * Generates a random color between two colors
+         * 
+         * @param {object} color1 - RGB color object
+         * @param {object} color2 - RGB color object
+         * @return {object} Random RGB color between color1 and color2
+         */
+        function randomColorBetween(color1, color2) 
+        {
+            // Generate random factor between 0 and 1
+            const factor = Math.random();
+            
+            // Interpolate between the colors
+            return {
+                r: Math.floor(color1.r + (color2.r - color1.r) * factor),
+                g: Math.floor(color1.g + (color2.g - color1.g) * factor),
+                b: Math.floor(color1.b + (color2.b - color1.b) * factor)
+            };
+        }
+        
+        // ========================
+        // Color Conversion Helpers
+        // ========================
+        
+        /**
+         * Converts a hex color string (#RRGGBB) to RGB object
+         * 
+         * @param {string} hex - Hex color string (e.g., "#ff00ff")
+         * @return {object} Object with r, g, b values (0-255)
+         */
+        function hexToRgb(hex) 
+        {
+            // Extract the R, G, B components using regex
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 }; // Default to black if invalid
+        }
+        
+        /**
+         * Converts RGB values to HSV color space
+         * HSV is better for certain color manipulations
+         * 
+         * @param {number} r - Red value (0-255)
+         * @param {number} g - Green value (0-255)
+         * @param {number} b - Blue value (0-255)
+         * @return {object} Object with h, s, v values (0-1)
+         */
+        function rgbToHsv(r, g, b) 
+        {
+            // Normalize RGB values to 0-1 range
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            // Find max and min values for calculating HSV
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const d = max - min;
+            
+            let h, s, v = max;
+            
+            // Calculate saturation (0 if completely unsaturated)
+            s = max === 0 ? 0 : d / max;
+            
+            // Calculate hue
+            if (max === min) 
+            {
+                h = 0; // achromatic (gray)
+            } 
+            else 
+            {
+                // Calculate hue based on which RGB component is maximum
+                switch (max) 
+                {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6; // Normalize to 0-1 range
+            }
+            
+            return { h, s, v };
+        }
+        
+        /**
+         * Converts HSV values to RGB color space
+         * 
+         * @param {number} h - Hue (0-1)
+         * @param {number} s - Saturation (0-1)
+         * @param {number} v - Value/Brightness (0-1)
+         * @return {object} Object with r, g, b values (0-255)
+         */
+        function hsvToRgb(h, s, v) 
+        {
+            let r, g, b;
+            
+            // Implementation based on standard HSV to RGB algorithm
+            const i = Math.floor(h * 6);
+            const f = h * 6 - i;
+            const p = v * (1 - s);
+            const q = v * (1 - f * s);
+            const t = v * (1 - (1 - f) * s);
+            
+            // Calculate RGB values based on the sector of the HSV color wheel
+            switch (i % 6) 
+            {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+            
+            // Convert back to 0-255 range
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+        
+        // ========================
+        // Animation Update Functions
+        // ========================
+        
+        /**
+         * Updates the grid LEDs based on current settings and animation state
+         * Handles different effects and playback modes
+         */
+        function updateGrid() 
+        {
+            // Get current control values
+            const gridStartColor = document.getElementById('grid-start-color')?.value || '#ff00ff';
+            const gridEndColor = document.getElementById('grid-end-color')?.value || '#00ffff';
+            const gridEffect = document.getElementById('grid-effect')?.value || 'pulse';
+            const gridPlayback = document.getElementById('grid-playback')?.value || 'loop';
+            const gridSpeed = parseFloat(document.getElementById('grid-speed')?.value || 1);
+            
+            // Convert hex colors to RGB for processing
+            const startRgb = hexToRgb(gridStartColor);
+            const endRgb = hexToRgb(gridEndColor);
+            
+            // Calculate elapsed time in seconds adjusted by speed
+            const now = Date.now();
+            const elapsedSec = (now - startTime) / 1000 * gridSpeed;
+            
+            // Calculate animation progress factor based on playback mode
+            let animFactor;
+            if (gridPlayback === 'once') 
+            {
+                // For "once" mode, cap at 1.0 (100% complete)
+                animFactor = Math.min(elapsedSec * 0.2, 1);
+            } 
+            else if (gridPlayback === 'boomerang') 
+            {
+                // For "boomerang" mode, go from 0 to 1 and back to 0
+                const cycle = (elapsedSec * 0.2) % 2;
+                animFactor = cycle <= 1 ? cycle : 2 - cycle;
+            } 
+            else 
+            {
+                // For "loop" mode, cycle from 0 to 1 repeatedly
+                animFactor = (elapsedSec * 0.2) % 1;
+            }
+            
+            // Update each LED in the grid
+            for (let y = 0; y < 4; y++) 
+            {
+                for (let x = 0; x < 8; x++) 
+                {
+                    const i = y * 8 + x;
+                    const led = document.getElementById(`grid-led-${i}`);
+                    if (!led) continue;
+                    
+                    // Apply different effects based on selected effect
+                    switch (gridEffect) 
+                    {
+                        case 'none':
+                            // Turn all LEDs off (black)
+                            led.style.backgroundColor = '#000000';
+                            break;
+                            
+                        case 'solid':
+                            // Solid color using start color
+                            led.style.backgroundColor = gridStartColor;
+                            break;
+                            
+                        case 'pulse':
+                            // Pulse between start and end colors using sine wave
+                            const pulseFactor = (Math.sin(elapsedSec) + 1) / 2; // 0 to 1
+                            
+                            // Interpolate between start and end colors
+                            const rp = Math.round(startRgb.r + (endRgb.r - startRgb.r) * pulseFactor);
+                            const gp = Math.round(startRgb.g + (endRgb.g - startRgb.g) * pulseFactor);
+                            const bp = Math.round(startRgb.b + (endRgb.b - startRgb.b) * pulseFactor);
+                            
+                            led.style.backgroundColor = `rgb(${rp}, ${gp}, ${bp})`;
+                            break;
+                            
+                        case 'linear':
+                            // Linear fade effect based on angle
+                            const angleInput = document.getElementById('grid-linear-angle');
+                            const angle = (angleInput?.value || 0) * (Math.PI / 180); // Convert to radians
+                            
+                            // Normalize position to -0.5 to 0.5 range
+                            const nx = x / 7 - 0.5;
+                            const ny = y / 3 - 0.5;
+                            
+                            // Create offset based on animation factor
+                            const offsetX = Math.cos(animFactor * Math.PI * 2) * 0.2;
+                            const offsetY = Math.sin(animFactor * Math.PI * 2) * 0.2;
+                            
+                            // Calculate dot product for direction
+                            const angleVector = { x: Math.cos(angle), y: Math.sin(angle) };
+                            const dotProduct = (nx + offsetX) * angleVector.x + (ny + offsetY) * angleVector.y;
+                            
+                            // Map to 0-1 range
+                            const linearFactor = Math.max(0, Math.min(1, dotProduct + 0.5));
+                            
+                            // Interpolate between colors
+                            const rl = Math.round(startRgb.r + (endRgb.r - startRgb.r) * linearFactor);
+                            const gl = Math.round(startRgb.g + (endRgb.g - startRgb.g) * linearFactor);
+                            const bl = Math.round(startRgb.b + (endRgb.b - startRgb.b) * linearFactor);
+                            
+                            led.style.backgroundColor = `rgb(${rl}, ${gl}, ${bl})`;
+                            break;
+                            
+                        case 'constrainbow':
+                            // Initialize colors if not set
+                            if (!gridConstrainbowColors[i]) 
+                            {
+                                gridConstrainbowColors[i] = {
+                                    current: randomColorBetween(startRgb, endRgb),
+                                    target: randomColorBetween(startRgb, endRgb),
+                                    progress: 0
+                                };
+                            }
+                            
+                            // Get current state
+                            const colorData = gridConstrainbowColors[i];
+                            
+                            // Update progress based on playback mode and speed
+                            if (gridPlayback === 'once') 
+                            {
+                                // For "once" mode, cap progress at 1
+                                colorData.progress = Math.min(colorData.progress + 0.01 * gridSpeed, 1);
+                            } 
+                            else if (gridPlayback === 'boomerang') 
+                            {
+                                // For "boomerang" mode, go back and forth
+                                const cyclePosition = (colorData.progress * 2) % 2;
+                                
+                                // Increment progress
+                                colorData.progress += 0.01 * gridSpeed;
+                                
+                                // Calculate interpolation factor based on cycle position
+                                const factor = cyclePosition < 1 ? cyclePosition : 2 - cyclePosition;
+                                
+                                // Interpolate RGB colors
+                                const r = Math.floor(colorData.current.r + (colorData.target.r - colorData.current.r) * factor);
+                                const g = Math.floor(colorData.current.g + (colorData.target.g - colorData.current.g) * factor);
+                                const b = Math.floor(colorData.current.b + (colorData.target.b - colorData.current.b) * factor);
+                                
+                                led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                                
+                                // If we've completed a full cycle, choose new colors
+                                if (colorData.progress >= 1) 
+                                {
+                                    const temp = colorData.current;
+                                    colorData.current = colorData.target;
+                                    colorData.target = randomColorBetween(startRgb, endRgb);
+                                    colorData.progress = 0;
+                                }
+                                
+                                break;
+                            } 
+                            else 
+                            {
+                                // For "loop" mode, simply increment progress
+                                colorData.progress += 0.01 * gridSpeed;
+                            }
+                            
+                            // Check if we've reached the target
+                            if (colorData.progress >= 1) 
+                            {
+                                // Choose new colors
+                                colorData.current = colorData.target;
+                                colorData.target = randomColorBetween(startRgb, endRgb);
+                                colorData.progress = 0;
+                            }
+                            
+                            // Interpolate RGB colors
+                            const r = Math.floor(colorData.current.r + (colorData.target.r - colorData.current.r) * colorData.progress);
+                            const g = Math.floor(colorData.current.g + (colorData.target.g - colorData.current.g) * colorData.progress);
+                            const b = Math.floor(colorData.current.b + (colorData.target.b - colorData.current.b) * colorData.progress);
+                            
+                            led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                            break;
+                            
+                        case 'rainbow':
+                            // True rainbow effect: cycle through full RGB spectrum
+                            
+                            // Create an offset based on grid position for wave-like effect
+                            const rainbowOffset = (x / 8 + y / 4) * 0.5;
+                            
+                            // Calculate base hue from elapsed time and position
+                            // This creates a continuous cycling through the color wheel
+                            let rainbowHue = (elapsedSec * 0.2 + rainbowOffset) % 1;
+                            
+                            // Apply playback mode modifier
+                            if (gridPlayback === 'once') 
+                            {
+                                // Cap at 1.0 for 'once' mode
+                                rainbowHue = Math.min(rainbowHue, 1);
+                            } 
+                            else if (gridPlayback === 'boomerang') 
+                            {
+                                // Make it go forward and backward
+                                const cycle = Math.floor(rainbowHue);
+                                rainbowHue = cycle % 2 === 0 ? rainbowHue % 1 : 1 - (rainbowHue % 1);
+                            }
+                            
+                            // Convert HSV to RGB (using full saturation and value)
+                            const rainbowColor = hsvToRgb(rainbowHue, 1, 1);
+                            
+                            // Set the color
+                            led.style.backgroundColor = `rgb(${rainbowColor.r}, ${rainbowColor.g}, ${rainbowColor.b})`;
+                            break;
+                            
+                        case 'wipe':
+                            // Wipe effect: transition from start to end color horizontally
+                            const wipeStep = Math.floor(animFactor * 8);
+                            
+                            // Set color based on wipe position
+                            if (x < wipeStep) 
+                            {
+                                led.style.backgroundColor = gridEndColor;
+                            } 
+                            else 
+                            {
+                                led.style.backgroundColor = gridStartColor;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Updates the strip LEDs based on current settings and animation state
+         * Similar to updateGrid but adapted for linear LED array
+         */
+        function updateStrip() 
+        {
+            // Get current control values
+            const stripStartColor = document.getElementById('strip-start-color')?.value || '#ff0000';
+            const stripEndColor = document.getElementById('strip-end-color')?.value || '#0000ff';
+            const stripEffect = document.getElementById('strip-effect')?.value || 'pulse';
+            const stripPlayback = document.getElementById('strip-playback')?.value || 'loop';
+            const stripSpeed = parseFloat(document.getElementById('strip-speed')?.value || 0.5);
+            const stripCount = parseInt(document.getElementById('strip-count')?.value || 72);
+            
+            // Convert hex colors to RGB for processing
+            const startRgb = hexToRgb(stripStartColor);
+            const endRgb = hexToRgb(stripEndColor);
+            
+            // Calculate elapsed time in seconds adjusted by speed
+            const now = Date.now();
+            const elapsedSec = (now - startTime) / 1000 * stripSpeed;
+            
+            // Calculate animation progress factor based on playback mode
+            let animFactor;
+            if (stripPlayback === 'once') 
+            {
+                // For "once" mode, cap at 1.0 (100% complete)
+                animFactor = Math.min(elapsedSec * 0.2, 1);
+            } 
+            else if (stripPlayback === 'boomerang') 
+            {
+                // For "boomerang" mode, go from 0 to 1 and back to 0
+                const cycle = (elapsedSec * 0.2) % 2;
+                animFactor = cycle <= 1 ? cycle : 2 - cycle;
+            } 
+            else 
+            {
+                // For "loop" mode, cycle from 0 to 1 repeatedly
+                animFactor = (elapsedSec * 0.2) % 1;
+            }
+            
+            // Update each LED in the strip
+            for (let i = 0; i < stripCount; i++) 
+            {
+                const led = document.getElementById(`strip-led-${i}`);
+                if (!led) continue;
+                
+                // Calculate position from 0 to 1 along the strip
+                const position = i / (stripCount - 1);
+                
+                // Apply different effects based on selected effect
+                switch (stripEffect) 
+                {
+                    case 'none':
+                        // Turn all LEDs off (black)
+                        led.style.backgroundColor = '#000000';
+                        break;
+                        
+                    case 'solid':
+                        // Solid color using start color
+                        led.style.backgroundColor = stripStartColor;
+                        break;
+                        
+                    case 'pulse':
+                        // Pulse between start and end colors using sine wave
+                        const pulseFactor = (Math.sin(elapsedSec) + 1) / 2; // 0 to 1
+                        
+                        // Interpolate between start and end colors
+                        const rp = Math.round(startRgb.r + (endRgb.r - startRgb.r) * pulseFactor);
+                        const gp = Math.round(startRgb.g + (endRgb.g - startRgb.g) * pulseFactor);
+                        const bp = Math.round(startRgb.b + (endRgb.b - startRgb.b) * pulseFactor);
+                        
+                        led.style.backgroundColor = `rgb(${rp}, ${gp}, ${bp})`;
+                        break;
+                        
+                                            case 'linear':
+                        // Simplified linear fade effect for strip (always horizontal)
+                        
+                        // Calculate position accounting for all LEDs
+                        // Make sure we handle the case where there's only one LED
+                        const fadePosition = stripCount > 1 ? i / (stripCount - 1) : 0.5;
+                        
+                        // Apply animation offset for movement
+                        // Simply shift the gradient along the strip over time
+                        const shiftedPosition = (fadePosition + animFactor) % 1;
+                        
+                        // Interpolate between colors
+                        const rl = Math.round(startRgb.r + (endRgb.r - startRgb.r) * shiftedPosition);
+                        const gl = Math.round(startRgb.g + (endRgb.g - startRgb.g) * shiftedPosition);
+                        const bl = Math.round(startRgb.b + (endRgb.b - startRgb.b) * shiftedPosition);
+                        
+                        led.style.backgroundColor = `rgb(${rl}, ${gl}, ${bl})`;
+                        break;
+                        
+                    case 'constrainbow':
+                        // Initialize colors if not set
+                        if (!stripConstrainbowColors[i]) 
+                        {
+                            stripConstrainbowColors[i] = {
+                                current: randomColorBetween(startRgb, endRgb),
+                                target: randomColorBetween(startRgb, endRgb),
+                                progress: 0
+                            };
+                        }
+                        
+                        // Get current state
+                        const colorData = stripConstrainbowColors[i];
+                        
+                        // Update progress based on playback mode and speed
+                        if (stripPlayback === 'once') 
+                        {
+                            // For "once" mode, cap progress at 1
+                            colorData.progress = Math.min(colorData.progress + 0.01 * stripSpeed, 1);
+                        } 
+                        else if (stripPlayback === 'boomerang') 
+                        {
+                            // For "boomerang" mode, go back and forth
+                            const cyclePosition = (colorData.progress * 2) % 2;
+                            
+                            // Increment progress
+                            colorData.progress += 0.01 * stripSpeed;
+                            
+                            // Calculate interpolation factor based on cycle position
+                            const factor = cyclePosition < 1 ? cyclePosition : 2 - cyclePosition;
+                            
+                            // Interpolate RGB colors
+                            const r = Math.floor(colorData.current.r + (colorData.target.r - colorData.current.r) * factor);
+                            const g = Math.floor(colorData.current.g + (colorData.target.g - colorData.current.g) * factor);
+                            const b = Math.floor(colorData.current.b + (colorData.target.b - colorData.current.b) * factor);
+                            
+                            led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                            
+                            // If we've completed a full cycle, choose new colors
+                            if (colorData.progress >= 1) 
+                            {
+                                const temp = colorData.current;
+                                colorData.current = colorData.target;
+                                colorData.target = randomColorBetween(startRgb, endRgb);
+                                colorData.progress = 0;
+                            }
+                            
+                            break;
+                        } 
+                        else 
+                        {
+                            // For "loop" mode, simply increment progress
+                            colorData.progress += 0.01 * stripSpeed;
+                        }
+                        
+                        // Check if we've reached the target
+                        if (colorData.progress >= 1) 
+                        {
+                            // Choose new colors
+                            colorData.current = colorData.target;
+                            colorData.target = randomColorBetween(startRgb, endRgb);
+                            colorData.progress = 0;
+                        }
+                        
+                        // Interpolate RGB colors
+                        const r = Math.floor(colorData.current.r + (colorData.target.r - colorData.current.r) * colorData.progress);
+                        const g = Math.floor(colorData.current.g + (colorData.target.g - colorData.current.g) * colorData.progress);
+                        const b = Math.floor(colorData.current.b + (colorData.target.b - colorData.current.b) * colorData.progress);
+                        
+                        led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                        break;
+                        
+                    case 'rainbow':
+                        // True rainbow effect using full HSV spectrum
+                        // Calculate hue based on position and time
+                        const position_factor = i / (stripCount - 1); // Normalize to 0-1
+                        const hue = (position_factor + elapsedSec * stripSpeed * 0.1) % 1;
+                        
+                        // Convert hue to RGB (full saturation and value)
+                        const rgb = hsvToRgb(hue, 1, 1);
+                        
+                        // Set the LED color directly
+                        led.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                        break;
+                        
+                    case 'wipe':
+                        // Wipe effect: transition from start to end color horizontally
+                        const wipeIndex = Math.floor(animFactor * stripCount);
+                        
+                        // Set color based on wipe position
+                        if (i < wipeIndex) 
+                        {
+                            led.style.backgroundColor = stripEndColor;
+                        } 
+                        else 
+                        {
+                            led.style.backgroundColor = stripStartColor;
+                        }
+                        break;
+                }
+            }
+        }
+        
+        // ========================
+        // Event Handlers
+        // ========================
+        
+        /**
+         * Sets up all event listeners for UI controls
+         */
+        function setupEventListeners() 
+        {
+            // Grid effect change handler
+            const gridEffect = document.getElementById('grid-effect');
+            if (gridEffect) 
+            {
+                gridEffect.addEventListener('change', function() 
+                {
+                    // Show/hide linear controls based on effect selection
+                    const linearControls = document.getElementById('grid-linear-controls');
+                    if (linearControls) 
+                    {
+                        linearControls.style.display = this.value === 'linear' ? 'block' : 'none';
+                    }
+                    
+                    // Reset animations and clear stored colors when effect changes
+                    resetAnimations();
+                    
+                    // If switching to constrainbow effect, clear any stored colors to get new random ones
+                    if (this.value === 'constrainbow')
+                    {
+                        gridConstrainbowColors = [];
+                    }
+                });
+            }
+            
+            // Strip effect change handler
+            const stripEffect = document.getElementById('strip-effect');
+            if (stripEffect) 
+            {
+                stripEffect.addEventListener('change', function() 
+                {
+                    // Show/hide linear controls based on effect selection
+                    const linearControls = document.getElementById('strip-linear-controls');
+                    if (linearControls) 
+                    {
+                        linearControls.style.display = this.value === 'linear' ? 'block' : 'none';
+                    }
+                    
+                    // Reset animations and clear stored colors when effect changes
+                    resetAnimations();
+                    
+                    // If switching to constrainbow effect, clear any stored colors to get new random ones
+                    if (this.value === 'constrainbow')
+                    {
+                        stripConstrainbowColors = [];
+                    }
+                });
+            }
+            
+            // Grid angle input handler
+            const gridLinearAngle = document.getElementById('grid-linear-angle');
+            if (gridLinearAngle) 
+            {
+                gridLinearAngle.addEventListener('input', function() 
+                {
+                    // Update angle display
+                    const display = document.getElementById('grid-angle-display');
+                    if (display) 
+                    {
+                        display.textContent = this.value + '°';
+                    }
+                });
+            }
+            
+            // No strip angle handler needed since we removed the control
+            
+            // Strip count input handler
+            const stripCount = document.getElementById('strip-count');
+            if (stripCount) 
+            {
+                stripCount.addEventListener('input', createStrip);
+            }
+            
+            // Color input handlers
+            const colorInputs = [
+                'grid-start-color', 
+                'grid-end-color', 
+                'strip-start-color', 
+                'strip-end-color'
+            ];
+            
+            colorInputs.forEach(id => 
+            {
+                const input = document.getElementById(id);
+                if (input) 
+                {
+                    input.addEventListener('input', function()
+                    {
+                        updateColorPreviews();
+                        
+                        // If using constrainbow effect, regenerate random colors when color inputs change
+                        const gridEffectValue = document.getElementById('grid-effect')?.value;
+                        const stripEffectValue = document.getElementById('strip-effect')?.value;
+                        
+                        if (id.startsWith('grid') && gridEffectValue === 'constrainbow')
+                        {
+                            gridConstrainbowColors = [];
+                        }
+                        
+                        if (id.startsWith('strip') && stripEffectValue === 'constrainbow')
+                        {
+                            stripConstrainbowColors = [];
+                        }
+                    });
+                }
+            });
+            
+            // Playback mode change handlers
+            const playbackSelectors = [
+                'grid-playback',
+                'strip-playback'
+            ];
+            
+            playbackSelectors.forEach(id => 
+            {
+                const select = document.getElementById(id);
+                if (select) 
+                {
+                    select.addEventListener('change', resetAnimations);
+                }
+            });
+        }
+        
+        // ========================
+        // Main Animation Loop
+        // ========================
+        
+        /**
+         * Main animation loop using requestAnimationFrame
+         * Updates grid and strip on each animation frame
+         */
+        function animationLoop() 
+        {
+            updateGrid();
+            updateStrip();
+            requestAnimationFrame(animationLoop);
+        }
+        
+        // ========================
+        // Initialization
+        // ========================
+        
+        /**
+         * Initialize the application
+         * Creates LEDs, sets up UI, and starts animation loop
+         */
+        function init() 
+        {
+            console.log('Initializing LED animation system...');
+            
+            // Create LED elements
+            createGrid();
+            createStrip();
+            
+            // Initialize UI
+            updateColorPreviews();
+            
+            // Setup event listeners for user interaction
+            setupEventListeners();
+            
+            // Start animation loop
+            requestAnimationFrame(animationLoop);
+        }
+        
+        // Start when DOM is fully loaded
+        if (document.readyState === 'loading') 
+        {
+            document.addEventListener('DOMContentLoaded', init);
+        } 
+        else 
+        {
+            // DOM already loaded, initialize now
+            init();
+        }
+    </script>
+</body>
+</html>
