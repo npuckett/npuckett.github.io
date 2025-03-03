@@ -685,16 +685,34 @@
                             
                         case 'wipe':
                             // Wipe effect: transition from start to end color horizontally
-                            const wipeStep = Math.floor(animFactor * 8);
                             
-                            // Set color based on wipe position
-                            if (x < wipeStep) 
+                            // In boomerang mode, we need to handle the return transition differently
+                            if (gridPlayback === 'boomerang') 
                             {
-                                led.style.backgroundColor = gridEndColor;
-                            } 
+                                // For boomerang, use the full cycle position (0-2)
+                                const fullCycle = (elapsedSec * 0.2) % 2;
+                                
+                                // First half of cycle: 0->1 = start to end
+                                // Second half of cycle: 1->2 = end to start
+                                if (fullCycle <= 1) 
+                                {
+                                    // Forward transition (0->1)
+                                    const wipeStep = Math.ceil(fullCycle * 8);
+                                    led.style.backgroundColor = x < wipeStep ? gridEndColor : gridStartColor;
+                                } 
+                                else 
+                                {
+                                    // Reverse transition (1->2)
+                                    const reversePos = 2 - fullCycle; // Goes from 1->0
+                                    const wipeStep = Math.floor(reversePos * 8);
+                                    led.style.backgroundColor = x >= wipeStep ? gridStartColor : gridEndColor;
+                                }
+                            }
                             else 
                             {
-                                led.style.backgroundColor = gridStartColor;
+                                // Standard wipe for loop and once modes
+                                const wipeStep = Math.ceil(animFactor * 8);
+                                led.style.backgroundColor = x < wipeStep ? gridEndColor : gridStartColor;
                             }
                             break;
                     }
