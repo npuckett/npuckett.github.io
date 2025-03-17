@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>five twelve</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+  }
+  
+  body {
+    background-color: #244a3f;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  .kitchen-container {
+    position: relative;
+    width: 661px; /* Total width of the original layout */
+    height: 768px; /* Total height of the original layout */
+  }
+  
+  /* Use the original absolute positioning approach inside the container */
+  .kitchen-container > div {
+    position: absolute;
+  }
+  
+  .cab1 {
+    left: 0;
+    top: 0;
+    width: 267px;
+    height: 294px;
+  }
+  
+  .cab2 {
+    left: 267px;
+    top: 0;
+    width: 293px;
+    height: 294px;
+  }
+  
+  .cab3 {
+    left: 560px;
+    top: 0;
+    width: 92px;
+    height: 294px;
+  }
+  
+  .sink {
+    left: 0;
+    top: 294px;
+    width: 559px;
+    height: 155px;
+  }
+  
+  .coffee {
+    left: 559px;
+    top: 294px;
+    width: 92px;
+    height: 155px;
+  }
+  
+  .dishwasher {
+    left: 0;
+    top: 449px;
+    width: 284px;
+    height: 306px;
+  }
+  
+  .under {
+    left: 284px;
+    top: 449px;
+    width: 367px;
+    height: 306px;
+  }
+  
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .rollover {
+    cursor: pointer;
+  }
+  
+  /* Responsive scaling for smaller screens */
+  @media (max-width: 700px) {
+    .kitchen-container {
+      transform: scale(0.9);
+      transform-origin: center;
+    }
+  }
+  
+  @media (max-width: 620px) {
+    .kitchen-container {
+      transform: scale(0.8);
+      transform-origin: center;
+    }
+  }
+  
+  @media (max-width: 540px) {
+    .kitchen-container {
+      transform: scale(0.7);
+      transform-origin: center;
+    }
+  }
+  
+  @media (max-width: 460px) {
+    .kitchen-container {
+      transform: scale(0.6);
+      transform-origin: center;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="kitchen-container">
+  <div class="cab1">
+    <a href="#" class="rollover">
+      <img src="../cab1/cab1-a.jpg" alt="Cabinet 1" 
+           data-hover="../cab1/cab1-b.jpg">
+    </a>
+  </div>
+  
+  <div class="cab2">
+    <a href="#" class="rollover">
+      <img src="../cab2/cab2-a.jpg" alt="Cabinet 2"
+           data-hover="../cab2/cab2-b.jpg">
+    </a>
+  </div>
+  
+  <div class="cab3">
+    <img src="../cab3/cab3.jpg" alt="Cabinet 3">
+  </div>
+  
+  <div class="sink">
+    <img src="../sink/sink.jpg" alt="Sink" usemap="#sinkMap">
+    <map name="sinkMap">
+      <area shape="rect" coords="76,109,116,133" href="../slide/slide.html" alt="Slide">
+    </map>
+  </div>
+  
+  <div class="coffee">
+    <a href="#" class="rollover">
+      <img src="../coffee/coffee-a.jpg" alt="Coffee"
+           data-hover="../coffee/coffee-b.jpg">
+    </a>
+  </div>
+  
+  <div class="dishwasher">
+    <a href="#" class="rollover">
+      <img src="../dishwasher/dishwasher-a.jpg" alt="Dishwasher"
+           data-hover="../dishwasher/dishwasher-b.jpg">
+    </a>
+  </div>
+  
+  <div class="under">
+    <a href="#" class="rollover">
+      <img src="../under/under-a.jpg" alt="Under Cabinet"
+           data-hover="../under/under-b.jpg">
+    </a>
+  </div>
+</div>
+
+<script>
+// Modern rollover effect
+document.querySelectorAll('.rollover').forEach(link => {
+  const img = link.querySelector('img');
+  const originalSrc = img.src;
+  const hoverSrc = img.getAttribute('data-hover');
+  
+  link.addEventListener('mouseenter', () => {
+    img.src = hoverSrc;
+  });
+  
+  link.addEventListener('mouseleave', () => {
+    img.src = originalSrc;
+  });
+});
+
+// Make image maps responsive
+function makeImageMapResponsive() {
+  const maps = document.querySelectorAll('map');
+  const images = document.querySelectorAll('img[usemap]');
+  
+  images.forEach((img, i) => {
+    const map = maps[i];
+    if (!map) return;
+    
+    const originalWidth = 559; // Original width of the sink image
+    const currentWidth = img.offsetWidth;
+    const scale = currentWidth / originalWidth;
+    
+    const areas = map.querySelectorAll('area');
+    areas.forEach(area => {
+      const coords = area.getAttribute('coords').split(',');
+      const newCoords = coords.map(coord => Math.round(parseInt(coord) * scale));
+      area.setAttribute('coords', newCoords.join(','));
+    });
+  });
+}
+
+window.addEventListener('load', makeImageMapResponsive);
+window.addEventListener('resize', makeImageMapResponsive);
+</script>
+</body>
+</html>
